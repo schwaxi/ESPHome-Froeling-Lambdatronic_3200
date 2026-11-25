@@ -1,0 +1,141 @@
+# ---------------------------------------------------------------------------
+# Kesseltyp HACKGUT (z. B. Fröling T4e) – Schnecken, Austragung
+# Einbinden: in der Geraete-YAML unter packages -> files: hackgut.yaml
+#   (zusammen mit allgemein.yaml; NICHT gleichzeitig mit pellet.yaml)
+# Beispiel: froeling-t4e-schwaxi.yaml
+# Register laut Fröling "ModBus Lambdatronic 3200" (B1200419), Adresse = ID - 30001
+# Namen/IDs wie bisher, damit die Entitaeten in Home Assistant gleich bleiben.
+# Hinweis T4e: Foerderschnecke (30030) und Zellradschleuse (30031) liefern identische
+# Werte (gemeinsame Messung) – in HA wird der Strom nur einmal gezaehlt.
+# ---------------------------------------------------------------------------
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${name} Stromaufnahme der Austragschnecke"
+    id: ${name}_Stromaufnahme_der_Austragschnecke
+    register_type: read
+    address: 19          # 30020
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    value_type: U_WORD
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.001
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${name} Stromaufnahme der Foerderschnecke"
+    id: ${name}_Stromaufnahme_der_Foerderschnecke
+    register_type: read
+    address: 29          # 30030
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    value_type: U_WORD
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.001
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${name} Stromaufnahme der Zellradschleuse"
+    id: ${name}_Stromaufnahme_der_Zellradschleuse
+    register_type: read
+    address: 30          # 30031
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    value_type: U_WORD
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.001
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${name} Stromaufnahme der Stokerschnecke"
+    id: ${name}_Stromaufnahme_der_Stokerschnecke
+    register_type: read
+    address: 31          # 30032
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    value_type: U_WORD
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.001
+
+  # Austragung aus dem Hackgutlager – zum Ausprobieren. Bleiben die Werte dauerhaft 0,
+  # koennen die drei Bloecke wieder raus.
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${name} Stromaufnahme Ruehrwerk"
+    id: ${name}_Stromaufnahme_Ruehrwerk
+    register_type: read
+    address: 93          # 30094
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    value_type: U_WORD
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.001
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${name} Stromaufnahme Schnecke 1"
+    id: ${name}_Stromaufnahme_Schnecke_1
+    register_type: read
+    address: 94          # 30095
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    value_type: U_WORD
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.001
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${name} Stromaufnahme Schnecke 2"
+    id: ${name}_Stromaufnahme_Schnecke_2
+    register_type: read
+    address: 95          # 30096
+    unit_of_measurement: "A"
+    device_class: current
+    state_class: measurement
+    value_type: U_WORD
+    accuracy_decimals: 2
+    filters:
+      - multiply: 0.001
+
+  # Betriebsstunden
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${name} Betriebsstunden Stokerschnecke"
+    id: ${name}_Betriebsstunden_Stokerschnecke
+    register_type: read
+    address: 39          # 30040
+    unit_of_measurement: "h"
+    state_class: total_increasing
+    value_type: U_WORD
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${name} Betriebsstunden Foerderschnecke"
+    id: ${name}_Betriebsstunden_Foerderschnecke
+    register_type: read
+    address: 41          # 30042
+    unit_of_measurement: "h"
+    state_class: total_increasing
+    value_type: U_WORD
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${name} Betriebsstunden Austragsschnecke"
+    id: ${name}_Betriebsstunden_Austragsschnecke
+    register_type: read
+    address: 49          # 30050
+    unit_of_measurement: "h"
+    state_class: total_increasing
+    value_type: U_WORD

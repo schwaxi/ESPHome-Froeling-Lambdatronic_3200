@@ -1,0 +1,50 @@
+# ---------------------------------------------------------------------------
+# Werte, die jeder Lambdatronic-3200-Kessel hat (unabhaengig vom Kesseltyp)
+# Entfernt: "Stromaufnahme der Ascheschnecke" (Adresse 148) – laut Fröling gibt es
+#   dafuer kein Register, der Wert war immer 0.
+# Schnecken-Stroeme stehen in hackgut.yaml bzw. pellet.yaml.
+# Einbinden: in der Geraete-YAML unter packages -> files: allgemein.yaml
+# ---------------------------------------------------------------------------
+sensor:
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${name} Betriebsstunden Ascheschnecke"
+    id: ${name}_Betriebsstunden_Ascheschnecke
+    register_type: read
+    address: 45          # 30046
+    unit_of_measurement: "h"
+    state_class: total_increasing
+    value_type: U_WORD
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${name} Tagesertrag"
+    id: ${name}_Tagesertrag
+    register_type: read
+    address: 84
+    unit_of_measurement: "kWh"
+    value_type: U_WORD
+    filters:
+      - multiply: 0.01
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${name} Gesamtertrag"
+    id: ${name}_Gesamtertrag
+    register_type: read
+    address: 85
+    unit_of_measurement: "kWh"
+    value_type: U_WORD
+    filters:
+      - multiply: 0.01
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${name} Aufgenommene Energie"
+    id: ${name}_Aufgenommene_Energie
+    register_type: read
+    address: 138
+    unit_of_measurement: "kWh"
+    value_type: U_WORD
+    filters:
+      - multiply: 0.01

@@ -1,5 +1,52 @@
 # ESPHome-Froeling-Lambdatronic_3200
 
+> **Fork mit Erweiterungen für Hackgut-Kessel (Fröling T4e)**
+> Original: [GyroGearl00se/ESPHome-Froeling-Lambdatronic_3200](https://github.com/GyroGearl00se/ESPHome-Froeling-Lambdatronic_3200) – alle Original-Dateien bleiben unverändert nutzbar.
+
+## Erweiterungen in diesem Fork
+
+| Datei | Inhalt |
+|---|---|
+| `allgemein.yaml` | Werte, die jeder Kessel hat: Betriebsstunden Ascheschnecke, Tages-/Gesamtertrag, aufgenommene Energie |
+| `hackgut.yaml` | **Hackgut (z. B. T4e):** Stromaufnahme Austrag-/Förder-/Stokerschnecke, Zellradschleuse, Rührwerk, Schnecke 1/2, Betriebsstunden |
+| `pellet.yaml` | **Pellet:** Stromaufnahme Stokerschnecke und Zellradschleuse, Betriebsstunden Stoker – zusammen mit `austragung.yaml` verwenden |
+| `fehler.yaml` | Fehlerpuffer (Register 33001–33003): aktive Meldungen im Klartext, „Meldung aktiv“, „Aschebox voll“ |
+| `boiler_02.yaml`, `puffer_02.yaml` | Zweiter Boiler bzw. zweiter Puffer |
+| `froeling-t4e-schwaxi.yaml` | Beispiel einer kompletten Geräte-Konfiguration (T4e, ESP32 DevKit, RS232 an GPIO1/GPIO3) |
+
+`hackgut.yaml` und `pellet.yaml` definieren teilweise dieselben Sensoren – **nur eine der beiden Dateien einbinden.**
+
+Hinweise T4e:
+- Förderschnecke (30030) und Zellradschleuse (30031) liefern beim T4e identische Werte (gemeinsame Messung).
+- Rührwerk und Schnecke 1/2 (30094–30096) hängen von der Austragung ab und können 0 bleiben.
+- Die „Stromaufnahme der Ascheschnecke“ (Adresse 148) gibt es laut Fröling nicht und wird nicht mehr ausgelesen.
+
+Getestet mit: Fröling T4e, Lambdatronic 3200, ESPHome 2026.10+.
+
+### Einbindung
+
+```yaml
+packages:
+  remote_package:
+    url: https://github.com/schwaxi/ESPHome-Froeling-Lambdatronic_3200
+    ref: main
+    files:
+      - allgemein.yaml
+      - fehler.yaml
+      - kessel.yaml
+      - heizkreis01.yaml
+      - boiler_01.yaml
+      - puffer_01.yaml
+      - hackgut.yaml        # Hackgut
+      # - pellet.yaml       # Pellet ...
+      # - austragung.yaml   # ... zusammen mit austragung.yaml
+    refresh: 1d
+```
+
+API-Key, OTA-Passwort und WLAN gehören in die `secrets.yaml` von ESPHome (`!secret ...`), nicht ins Repository.
+
+---
+
 ![Dashboard - AllInOne](docs/ha_dashboard_aio.png)
 ![Dashboard - Kessel](docs/ha_dashboard_kessel.png)
 ![Dashboard - Heizkörper](docs/ha_dashboard_heizkoerper.png)

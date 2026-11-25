@@ -1,0 +1,111 @@
+# ---------------------------------------------------------------------------
+# Fröling Lambdatronic 3200 – Fehlerpuffer (aktive Meldungen), fuer alle Kesseltypen
+# Einbinden: in der Geraete-YAML unter packages -> files: fehler.yaml
+#
+# Quelle: Fröling "Kommunikationsprotokoll ModBus Lambdatronic 3200" (B1200419),
+#   Abschnitt 3.6 Fehlerpuffer: Input-Register 33001–33020, 0xFFFF = keine Meldung
+#   Abschnitt 3.6.1 Texte für Fehlerpuffer (ID 0–386)
+# Adressen in ESPHome = Register-ID minus 30001 (wie im restlichen Projekt).
+# ---------------------------------------------------------------------------
+
+sensor:
+  # Rohwerte der ersten 3 aktiven Meldungen (Fehler-ID, 65535 = leer)
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    id: ${name}_fehler_1
+    name: "${name} Fehler 1 ID"
+    register_type: read
+    address: 3000
+    value_type: U_WORD
+    accuracy_decimals: 0
+    entity_category: diagnostic
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    id: ${name}_fehler_2
+    name: "${name} Fehler 2 ID"
+    register_type: read
+    address: 3001
+    value_type: U_WORD
+    accuracy_decimals: 0
+    entity_category: diagnostic
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    id: ${name}_fehler_3
+    name: "${name} Fehler 3 ID"
+    register_type: read
+    address: 3002
+    value_type: U_WORD
+    accuracy_decimals: 0
+    entity_category: diagnostic
+
+
+text_sensor:
+  # Alle aktiven Meldungen als Klartext, getrennt mit " | "
+  - platform: template
+    name: "${name} Aktive Meldungen"
+    id: ${name}_aktive_meldungen
+    icon: mdi:alert-circle-outline
+    update_interval: 60s
+    lambda: |-
+      auto text = [](int n) -> std::string {
+        switch (n) {
+          case 0:   return "STB gefallen oder NOT-AUS betätigt";
+          case 1:   return "Kesseltemperaturfühler fehlerhaft";
+          case 2:   return "Primärluftklappe blockiert";
+          case 10:  return "Rostreinigung fehlerhaft";
+          case 11:  return "Zündversuch ist nicht gelungen";
+          case 19:  return "Rücklauftemperatur seit mehr als 30 Minuten zu niedrig";
+          case 21:  return "Vorlauftemperaturfühler Heizkreis 1 fehlerhaft";
+          case 24:  return "Außentemperaturfühler fehlerhaft";
+          case 58:  return "Vor dem Stromausfall ist ein Busmodul ausgefallen";
+          case 116: return "Motorschutzschalter Zellradschleuse gefallen";
+          case 117: return "Lambdasonde defekt";
+          case 139: return "Brenner reinigen und kontrollieren";
+          case 143: return "Zu oft Überstrom Zellradschleuse";
+          case 146: return "Steuerung neu gestartet";
+          case 169: return "Aschebox voll, bitte entleeren";
+          case 173: return "Aschebox voll, bitte entleeren";
+          case 179: return "Aschebox zu lange offen bzw. entfernt";
+          case 321: return "HK1 - Vorlauf-Temperatur zu lange zu hoch";
+          case 354: return "Raumfühler Heizkreis 1 fehlerhaft";
+          case 375: return "Rücklauftemperatur zu hoch";
+          case 384: return "Aschebehälter voll oder WOS blockiert";
+          default:  return "Meldung Nr. " + std::to_string(n) + " (siehe Fröling-Fehlerliste)";
+        }
+      };
+      std::string out;
+      for (auto *s : {id(${name}_fehler_1), id(${name}_fehler_2), id(${name}_fehler_3)}) {
+        if (std::isnan(s->state)) continue;
+        int n = (int) s->state;
+        if (n == 65535) continue;
+        if (!out.empty()) out += " | ";
+        out += text(n);
+      }
+      return out.empty() ? std::string("Keine Meldung") : out;
+
+binary_sensor:
+  # Irgendeine Meldung aktiv
+  - platform: template
+    name: "${name} Meldung aktiv"
+    id: ${name}_meldung_aktiv
+    device_class: problem
+    lambda: |-
+      for (auto *s : {id(${name}_fehler_1), id(${name}_fehler_2), id(${name}_fehler_3)})
+        if (!std::isnan(s->state) && (int) s->state != 65535) return true;
+      return false;
+
+  # Aschebox voll (IDs 169, 173, 384)
+  - platform: template
+    name: "${name} Aschebox voll"
+    id: ${name}_aschebox_voll
+    icon: mdi:delete-variant
+    device_class: problem
+    lambda: |-
+      for (auto *s : {id(${name}_fehler_1), id(${name}_fehler_2), id(${name}_fehler_3)}) {
+        if (std::isnan(s->state)) continue;
+        int n = (int) s->state;
+        if (n == 169 || n == 173 || n == 384) return true;
+      }
+      return false;

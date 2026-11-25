@@ -1,0 +1,68 @@
+sensor:  
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${name} Puffer 2 Temperatur oben"
+    id: ${name}_Puffer_2_Temperatur_oben
+    register_type: read
+    address: 2040
+    unit_of_measurement: "°C"
+    device_class: "temperature"
+    state_class: "measurement"
+    value_type: U_WORD  
+    filters:
+      - multiply: 0.5
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${name} Puffer 2 Temperatur mitte"
+    id: ${name}_Puffer_2_Temperatur_mitte
+    register_type: read
+    address: 2041
+    unit_of_measurement: "°C"
+    device_class: "temperature"
+    state_class: "measurement"
+    value_type: U_WORD  
+    filters:
+      - multiply: 0.5
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${name} Puffer 2 Temperatur unten"
+    id: ${name}_Puffer_2_Temperatur_unten
+    register_type: read
+    address: 2042
+    unit_of_measurement: "°C"
+    device_class: "temperature"
+    state_class: "measurement"
+    value_type: U_WORD  
+    filters:
+      - multiply: 0.5
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${name} Puffer 2 Ladezustand"
+    id: ${name}_Puffer_2_Ladezustand
+    register_type: read
+    address: 2044
+    unit_of_measurement: "%"
+    value_type: U_WORD  
+
+  - platform: modbus_controller
+    modbus_controller_id: ${modbus_controller_id}
+    name: "${name} Puffer 2 Pufferpumpen Ansteuerung"
+    id: ${name}_Puffer_2_Pufferpumpen_Ansteuerung
+    register_type: read
+    address: 2043
+    unit_of_measurement: "%"
+    value_type: U_WORD
+
+binary_sensor:
+  - platform: template
+    name: "${name} Puffer 2 Pufferpumpen Ansteuerung AN AUS"
+    id: ${name}_Puffer_2_Pufferpumpen_Ansteuerung_AN_AUS
+    lambda: |-
+      if (id(${name}_Puffer_2_Pufferpumpen_Ansteuerung).state > 0) {
+        return true;
+      } else {
+        return false;
+      }
